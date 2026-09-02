@@ -65,7 +65,8 @@ class _AdicionarMedicamentoScreenState extends ConsumerState<AdicionarMedicament
       return;
     }
 
-    final horarioFormatado = _horarioSelecionado!.format(context);
+    final horarioFormatado =
+        '${_horarioSelecionado!.hour.toString().padLeft(2, '0')}:${_horarioSelecionado!.minute.toString().padLeft(2, '0')}';
     
     final String diasFormatados;
     if (_diasSelecionados.length == _todosOsDias.length) {

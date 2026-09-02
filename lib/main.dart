@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/medicamentos_screen.dart';
 import 'screens/diario_screen.dart';
 import 'screens/analise_ia_screen.dart';
+import 'services/notification_service.dart';
 
 class IndiceNavegacaoNotifier extends Notifier<int> {
   @override
@@ -19,7 +20,9 @@ final indiceNavegacaoProvider = NotifierProvider<IndiceNavegacaoNotifier, int>((
   return IndiceNavegacaoNotifier();
 });
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.instance.initialize();
   runApp(const ProviderScope(child: XantiApp()));
 }
 
