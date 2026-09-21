@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/medicamento.dart';
+import '../models/registro_diario.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._interno();
@@ -19,14 +20,20 @@ class DatabaseHelper {
     String caminho = join(await getDatabasesPath(), 'xanti_db.db');
     return await openDatabase(
       caminho,
-      version: 1,
-      onCreate: (db, version) {
-        return db.execute(
-          'CREATE TABLE medicamentos(id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, diasSemana TEXT, horario TEXT)',
-        );
+      version: 2,
+      onCreate: (db, version) async {
+        await db.execute('CREATE TABLE medicamentos(id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, diasSemana TEXT, horario TEXT)');
+        await _criarTabelaDiario(db);
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) await _criarTabelaDiario(db);
       },
     );
   }
+
+  Future<void> _criarTabelaDiario(Database db) => db.execute(
+        'CREATE TABLE diario(id INTEGER PRIMARY KEY AUTOINCREMENT, data TEXT NOT NULL, nivelAnsiedade INTEGER NOT NULL, anotacao TEXT NOT NULL)',
+      );
 
   Future<int> inserirMedicamento(Medicamento medicamento) async {
     final db = await database;
@@ -56,6 +63,27 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<int> inserirRegistroDiario(RegistroDiario registro) async {
+    final db = await database;
+    return db.insert('diario', registro.toMap());
+  }
+
+  Future<List<RegistroDiario>> buscarRegistrosDiario() async {
+    final db = await database;
+    final registros = await db.query('diario', orderBy: 'data DESC, id DESC');
+    return registros.map(RegistroDiario.fromMap).toList();
+  }
+
+  Future<int> atualizarRegistroDiario(RegistroDiario registro) async {
+    final db = await database;
+    return db.update('diario', registro.toMap(), where: 'id = ?', whereArgs: [registro.id]);
+  }
+
+  Future<int> deletarRegistroDiario(int id) async {
+    final db = await database;
+    return db.delete('diario', where: 'id = ?', whereArgs: [id]);
   }
 }
 
