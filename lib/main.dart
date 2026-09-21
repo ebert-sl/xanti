@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/medicamentos_screen.dart';
@@ -23,6 +24,7 @@ final indiceNavegacaoProvider = NotifierProvider<IndiceNavegacaoNotifier, int>((
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService.instance.initialize();
+  await dotenv.load(fileName: ".env");
   runApp(const ProviderScope(child: XantiApp()));
 }
 
